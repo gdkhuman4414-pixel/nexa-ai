@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>NEXA — AI Business Operating System</title>
+<style>
+:root{
+  --navy:#0f172a;--navy2:#18243a;--blue:#2563eb;--blue2:#3b82f6;
+  --blueSoft:#eff6ff;--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#697386;
+  --line:#e3e8f0;--green:#16803c;--red:#c24141;--shadow:0 10px 30px rgba(15,23,42,.07)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{overflow-x:hidden}
+button,input,select,textarea{font:inherit}
+button{border:0;cursor:pointer}
+.hidden{display:none!important}
+.auth{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0b1220,#173b78);padding:20px}
+.auth .box{width:min(440px,100%);background:#fff;border-radius:24px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.28)}
+.brand{display:flex;align-items:center;gap:10px;font-size:28px;font-weight:850;letter-spacing:.4px}
+.brand img{width:44px;height:44px;object-fit:contain;border-radius:11px}
+.auth .brand{margin-bottom:22px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:32px;line-height:1.1}
+.muted{color:var(--muted)}
+.field{margin:10px 0}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+input,textarea,select{width:100%;padding:13px 14px;border:1px solid #d8dee8;border-radius:12px;background:#fff;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.primary{width:100%;background:var(--blue);color:#fff;padding:13px 16px;border-radius:12px;font-weight:800}
+.primary:hover{background:#1d4ed8}
+.secondary{background:#eef2f7;color:var(--text);padding:11px 14px;border-radius:11px;font-weight:750}
+.link{background:none;color:var(--blue);padding:0;font-weight:750}
+.msg{min-height:22px;margin-top:12px;font-size:14px}
+.auth-note{font-size:12px;line-height:1.5;margin-top:18px;color:#7a8495}
+
+.app{min-height:100vh}
+.side{position:fixed;z-index:20;left:0;top:0;width:224px;height:100vh;background:var(--navy);color:#fff;padding:18px 12px;overflow:auto}
+.side .brand{padding:4px 8px 22px}
+.side .brand span{color:#fff}
+.nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;color:#aeb9cb;margin:3px 0;padding:12px 11px;border-radius:12px;font-weight:650}
+.nav button:hover,.nav button.active{background:#263550;color:#fff}
+.nav .ico{width:22px;text-align:center;font-size:18px}
+.nav .logout{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);border-radius:0;padding-top:18px}
+.main{margin-left:224px;padding:26px;max-width:1500px}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}
+.top h1{margin-bottom:7px}
+.ai-status{display:flex;align-items:center;gap:7px;font-weight:800}
+.dot{width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 5px rgba(34,197,94,.12)}
+.page{display:none}.page.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin:14px 0;box-shadow:var(--shadow)}
+.value{font-size:30px;font-weight:850;margin-top:7px}
+.delta{margin-top:8px;color:var(--green);font-weight:650}
+.hero{background:linear-gradient(145deg,#15233b,#1b2a45);color:#fff;border:0;padding:26px}
+.hero .muted{color:#c9d3e2}
+.ask{display:flex;gap:9px}
+.ask input{margin:0;flex:1}
+.ask button{background:#fff;color:var(--blue);padding:12px 18px;border-radius:12px;font-weight:850}
+.reply{margin-top:14px;line-height:1.6;min-height:24px;white-space:pre-wrap}
+.reply.loading{opacity:.7}
+.row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.badge{background:var(--blueSoft);color:#3155b8;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:750;white-space:nowrap}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--line)}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+.notice{padding:13px 14px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);line-height:1.5}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi .card{margin:0}
+.file-input{display:none}
+
+/* Floating NEXA */
+.fab{position:fixed;z-index:50;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;background:var(--blue);color:#fff;box-shadow:0 14px 35px rgba(37,99,235,.38);font-weight:900;font-size:17px;border:3px solid #fff}
+.fab:hover{transform:translateY(-2px)}
+.chat{position:fixed;z-index:60;right:22px;bottom:94px;width:min(390px,calc(100vw - 28px));background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 25px 70px rgba(15,23,42,.22);overflow:hidden}
+.chat-head{background:var(--navy2);color:#fff;padding:15px 17px;display:flex;justify-content:space-between;align-items:center}
+.chat-head button{background:transparent;color:#fff;font-size:22px}
+.chat-body{height:320px;overflow:auto;padding:14px;background:#f8fafc}
+.bubble{max-width:86%;padding:10px 12px;border-radius:14px;margin:7px 0;line-height:1.45;white-space:pre-wrap}
+.bubble.nexa{background:#fff;border:1px solid var(--line)}
+.bubble.user{background:var(--blue);color:#fff;margin-left:auto}
+.chat-input{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line)}
+.chat-input input{margin:0}.chat-input button{background:var(--blue);color:#fff;padding:11px 15px;border-radius:11px;font-weight:800}
+
+/* Modal */
+.modal-backdrop{position:fixed;z-index:80;inset:0;background:rgba(15,23,42,.55);display:grid;place-items:center;padding:18px}
+.modal{width:min(520px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.close{background:#eef2f7;border-radius:50%;width:36px;height:36px;font-size:20px}
+
+.toast{position:fixed;z-index:100;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 15px;border-radius:999px;box-shadow:var(--shadow);max-width:calc(100vw - 30px);text-align:center}
+
+@media(max-width:900px){
+ .cards{grid-template-columns:1fr 1fr}.kpi{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+ /* Portrait/mobile navigation: keep BOTH icons and labels visible.
+    The previous rule hid every span, including .ico, which made the toolbar disappear. */
+ .side{width:88px;padding:12px 6px}
+ .side .brand{justify-content:center;padding:4px 2px 14px}
+ .side .brand span{display:none}
+ .nav button{justify-content:center;flex-direction:column;gap:3px;padding:9px 2px;margin:2px 0;text-align:center;font-size:9px;line-height:1.05;font-weight:700}
+ .nav button span{display:block}
+ .nav .ico{width:auto;height:22px;display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1}
+ .nav button span:not(.ico){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:78px}
+ .nav .logout{padding-top:12px}
+ .main{margin-left:88px;padding:14px}
+ .top h1{font-size:24px}.top{align-items:center}.top .ai-status{font-size:12px}
+ .cards{grid-template-columns:1fr 1fr;gap:9px}.card{padding:16px;border-radius:16px}.value{font-size:26px}
+ .ask{flex-direction:column}.ask button{width:100%}
+ .fab{right:16px;bottom:16px}.chat{right:14px;bottom:88px}
+}
+@media(max-width:420px){
+ .cards{grid-template-columns:1fr}.top .ai-status{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth" class="auth">
+  <div class="box">
+    <div class="brand"><img src="nexa-logo.png" alt="NEXA logo"><span>NEXA</span></div>
+
+    <div id="loginPanel">
+      <h1>Welcome back</h1>
+      <p class="muted">Sign in to your NEXA workspace.</p>
+      <div class="field"><label for="le">Email</label><input id="le" type="email" autocomplete="email" placeholder="you@business.com"></div>
+      <div class="field"><label for="lp">Password</label><input id="lp" type="password" autocomplete="current-password" placeholder="Your password"></div>
+      <button id="loginBtn" class="primary" type="button">Log in</button>
+      <p style="margin-top:16px">New to NEXA? <button id="signupViewBtn" class="link" type="button">Create account</button></p>
+    </div>
+
+    <div id="signupPanel" class="hidden">
+      <h1>Create your account</h1>
+      <p class="muted">Set up your business workspace.</p>
+      <div class="field"><label for="sn">Your name</label><input id="sn" autocomplete="name" placeholder="Your name"></div>
+      <div class="field"><label for="sb">Business name</label><input id="sb" autocomplete="organization" placeholder="Business name"></div>
+      <div class="field"><label for="se">Email</label><input id="se" type="email" autocomplete="email" placeholder="you@business.com"></div>
+      <div class="field"><label for="sp">Password</label><input id="sp" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+      <button id="createBtn" class="primary" type="button">Create account</button>
+      <p style="margin-top:16px">Already registered? <button id="loginViewBtn" class="link" type="button">Log in</button></p>
+    </div>
+    <div id="authMsg" class="msg" role="status"></div>
+    <div class="auth-note">Prototype mode: your account and demo business data are stored only in this browser. No password is sent anywhere.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app hidden">
+  <aside class="side">
+    <div class="brand"><img src="nexa-logo.png" alt="NEXA logo"><span>NEXA</span></div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="active" data-page="home" type="button"><span class="ico">⌂</span><span>Home</span></button>
+      <button data-page="brain" type="button"><span class="ico">✦</span><span>Ask NEXA</span></button>
+      <button data-page="customers" type="button"><span class="ico">◉</span><span>Customers</span></button>
+      <button data-page="sales" type="button"><span class="ico">↗</span><span>Sales</span></button>
+      <button data-page="money" type="button"><span class="ico">₹</span><span>Money</span></button>
+      <button data-page="products" type="button"><span class="ico">▣</span><span>Products</span></button>
+      <button data-page="team" type="button"><span class="ico">♙</span><span>Team</span></button>
+      <button data-page="marketing" type="button"><span class="ico">◎</span><span>Marketing</span></button>
+      <button data-page="documents" type="button"><span class="ico">▤</span><span>Documents</span></button>
+      <button data-page="actions" type="button"><span class="ico">✓</span><span>AI Actions</span></button>
+      <button data-page="analytics" type="button"><span class="ico">◌</span><span>Analytics</span></button>
+      <button id="logoutBtn" class="logout" type="button"><span class="ico">↪</span><span>Log out</span></button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div><h1 id="title">Good morning 👋</h1><div id="sub" class="muted">NEXA shows you what matters now.</div></div>
+      <div class="ai-status"><span class="dot"></span>NEXA AI ready</div>
+    </header>
+
+    <section id="home" class="page active">
+      <div class="cards">
+        <div class="card"><div class="muted">Revenue</div><div class="value">₹12.8L</div><div class="delta">↑ 18.4% this month</div></div>
+        <div class="card"><div class="muted">Profit</div><div class="value">₹4.0L</div><div class="delta">↑ 11.2%</div></div>
+        <div class="card"><div class="muted">Customers</div><div class="value">1,284</div><div class="delta">↑ 9.2%</div></div>
+        <div class="card"><div class="muted">Attention</div><div class="value">7</div><div class="muted">Needs review</div></div>
+      </div>
+      <div class="card hero">
+        <h2>✦ What should I do today?</h2>
+        <p class="muted">Ask NEXA about your business in plain language.</p>
+        <div class="ask"><input id="hq" placeholder="Ask NEXA anything…" aria-label="Ask NEXA"><button id="homeAskBtn" type="button">Ask NEXA</button></div>
+        <div id="hr" class="reply" role="status"></div>
+      </div>
+      <div class="card">
+        <h2>NEXA attention list</h2>
+        <div class="row">7 high-value customer follow-ups <span class="badge">Review</span></div>
+        <div class="row">3 invoices approaching due date <span class="badge">Money</span></div>
+        <div class="row">Product A demand rising <span class="badge">Opportunity</span></div>
+      </div>
+    </section>
+
+    <section id="brain" class="page">
+      <div class="card hero">
+        <h2>✦ Ask NEXA</h2><p class="muted">Your always-available business copilot.</p>
+        <div class="ask"><input id="bq" placeholder="e.g. What needs my attention?"><button id="brainAskBtn" type="button">Ask NEXA</button></div>
+        <div id="br" class="reply"></div>
+      </div>
+      <div class="card"><h3>Try asking</h3><div class="toolbar">
+        <button class="secondary quick" data-q="What should I focus on today?">Focus today</button>
+        <button class="secondary quick" data-q="How is revenue and profit?">Revenue & profit</button>
+        <button class="secondary quick" data-q="Which customers need follow-up?">Customer follow-ups</button>
+        <button class="secondary quick" data-q="What products need attention?">Inventory</button>
+      </div></div>
+    </section>
+
+    <section id="customers" class="page"><div class="card"><h2>Customers</h2><div class="toolbar"><input id="customerSearch" placeholder="Search customers…"></div>
+      <div id="customerRows"></div>
+    </div></section>
+
+    <section id="sales" class="page"><div class="cards">
+      <div class="card"><div class="muted">Sales</div><div class="value">₹12.8L</div></div><div class="card"><div class="muted">Orders</div><div class="value">486</div></div>
+      <div class="card"><div class="muted">Pipeline</div><div class="value">₹18.4L</div></div><div class="card"><div class="muted">Conversion</div><div class="value">12.6%</div></div>
+    </div><div class="card"><h2>Sales pipeline</h2><div class="row">New leads <span class="badge">32</span></div><div class="row">Qualified <span class="badge">18</span></div><div class="row">Proposals <span class="badge">11</span></div></div></section>
+
+    <section id="money" class="page"><div class="cards">
+      <div class="card"><div class="muted">Revenue</div><div class="value">₹12.8L</div></div><div class="card"><div class="muted">Expenses</div><div class="value">₹8.8L</div></div>
+      <div class="card"><div class="muted">Profit</div><div class="value">₹4.0L</div></div><div class="card"><div class="muted">Receivables</div><div class="value">₹2.4L</div></div>
+    </div><div class="card"><h2>Invoices</h2><div class="row">INV-1042 · Due in 2 days <span class="badge">₹84,000</span></div><div class="row">INV-1039 · Due in 5 days <span class="badge">₹52,000</span></div><div class="row">INV-1032 · Paid <span class="badge">₹31,000</span></div></div></section>
+
+    <section id="products" class="page"><div class="card"><h2>Products & Inventory</h2><div class="row">Product A — rising demand <span class="badge">Restock</span></div><div class="row">Product B — healthy stock <span class="badge">Maintain</span></div><div class="row">Product C — review demand <span class="badge">Review</span></div></div></section>
+
+    <section id="team" class="page"><div class="card"><h2>Team</h2><div class="row">Users & roles <span class="badge">Ready</span></div><div class="row">Team invitations <button class="secondary" data-action="invite">Invite member</button></div></div></section>
+
+    <section id="marketing" class="page"><div class="card"><h2>Marketing</h2><div class="row">Leads <span class="badge">32</span></div><div class="row">Campaigns <span class="badge">0</span></div><div class="row">Conversion <span class="badge">12.6%</span></div></div></section>
+
+    <section id="documents" class="page"><div class="card"><h2>Documents</h2><p class="muted">Add invoices, contracts, reports or other business files. Files are kept locally in this prototype.</p>
+      <input id="docFile" class="file-input" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg">
+      <button id="uploadBtn" class="primary" style="width:auto" type="button">+ Upload documents</button>
+      <div id="docList" style="margin-top:12px"></div>
+    </div></section>
+
+    <section id="actions" class="page"><div class="card"><h2>AI Actions</h2><div class="notice">NEXA never executes business-critical actions silently. Review first, then approve.</div>
+      <div class="row">Customer follow-ups <button class="secondary" data-action="followup">Review</button></div>
+      <div class="row">Invoice review <button class="secondary" data-action="invoice">Review</button></div>
+      <div class="row">Restock Product A <button class="secondary" data-action="restock">Review</button></div>
+    </div></section>
+
+    <section id="analytics" class="page"><div class="cards">
+      <div class="card"><div class="muted">Growth</div><div class="value">18.4%</div></div><div class="card"><div class="muted">Retention</div><div class="value">87.2%</div></div>
+      <div class="card"><div class="muted">Margin</div><div class="value">31.4%</div></div><div class="card"><div class="muted">Insights</div><div class="value">42</div></div>
+    </div><div class="card"><h2>Weekly insight</h2><p class="muted">Revenue is trending upward while Product A demand is increasing. NEXA recommends reviewing high-value customer follow-ups and upcoming invoices.</p></div></section>
+  </main>
+</div>
+
+<!-- Floating NEXA AI -->
+<button id="fab" class="fab hidden" type="button" aria-label="Open NEXA AI">✦ AI</button>
+<div id="chat" class="chat hidden" role="dialog" aria-label="NEXA AI">
+  <div class="chat-head"><strong>✦ NEXA AI</strong><button id="chatClose" type="button" aria-label="Close">×</button></div>
+  <div id="chatBody" class="chat-body"><div class="bubble nexa">Hi! I'm NEXA. Ask me about customers, sales, money, products, or what needs attention.</div></div>
+  <div class="chat-input"><input id="chatInput" placeholder="Ask NEXA…"><button id="chatSend" type="button">Send</button></div>
+</div>
+
+<div id="modalWrap" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">NEXA</h2><button id="modalClose" class="close" type="button">×</button></div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const state = {
+    customers: [
+      {name:"Arjun Enterprises", value:"₹4.8L", status:"High value"},
+      {name:"Shree Traders", value:"₹3.2L", status:"High value"},
+      {name:"Nova Retail", value:"₹1.6L", status:"Follow-up"},
+      {name:"Patel Distributors", value:"₹2.7L", status:"Active"},
+      {name:"Apex Stores", value:"₹1.9L", status:"Follow-up"}
+    ]
+  };
+
+  function safeJSON(key, fallback=null) {
+    try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; }
+    catch { return fallback; }
+  }
+  function setJSON(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
+  }
+  function toast(text) {
+    $("toast").textContent = text;
+    $("toast").classList.remove("hidden");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => $("toast").classList.add("hidden"), 2400);
+  }
+
+  // ---------- Authentication ----------
+  function showLogin() {
+    $("loginPanel").classList.remove("hidden");
+    $("signupPanel").classList.add("hidden");
+    $("authMsg").textContent = "";
+  }
+  function showSignup() {
+    $("signupPanel").classList.remove("hidden");
+    $("loginPanel").classList.add("hidden");
+    $("authMsg").textContent = "";
+  }
+  function openApp() {
+    $("auth").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    $("fab").classList.remove("hidden");
+    const u = safeJSON("nexaUser");
+    if (u) $("sub").textContent = `${u.biz} · NEXA shows you what matters now.`;
+    renderCustomers();
+    renderDocs();
+  }
+  function createAccount() {
+    const name=$("sn").value.trim(), biz=$("sb").value.trim(), email=$("se").value.trim().toLowerCase(), pass=$("sp").value;
+    if (!name || !biz || !email || !pass) return $("authMsg").textContent="Please fill every field.";
+    if (!/^\S+@\S+\.\S+$/.test(email)) return $("authMsg").textContent="Please enter a valid email.";
+    if (pass.length < 6) return $("authMsg").textContent="Password must be at least 6 characters.";
+    const ok=setJSON("nexaUser",{name,biz,email,pass});
+    if (!ok) return $("authMsg").textContent="This browser blocked local storage. Please allow site storage and retry.";
+    setJSON("nexaSession",true);
+    openApp();
+  }
+  function login() {
+    const u=safeJSON("nexaUser"), email=$("le").value.trim().toLowerCase(), pass=$("lp").value;
+    if (!u) return $("authMsg").textContent="No account exists on this device. Create an account first.";
+    if (u.email!==email || u.pass!==pass) return $("authMsg").textContent="Email or password is incorrect.";
+    setJSON("nexaSession",true); openApp();
+  }
+  function logout() {
+    localStorage.removeItem("nexaSession");
+    $("app").classList.add("hidden"); $("fab").classList.add("hidden"); $("chat").classList.add("hidden");
+    $("auth").classList.remove("hidden"); showLogin();
+  }
+
+  // ---------- Navigation ----------
+  const names={
+    home:["Good morning 👋","NEXA shows you what matters now."],
+    brain:["Ask NEXA","One place for business questions."],
+    customers:["Customers","Customer intelligence."],
+    sales:["Sales","Leads, orders and pipeline."],
+    money:["Money","Revenue, expenses and cash flow."],
+    products:["Products","Products, stock and procurement."],
+    team:["Team","People, roles and work."],
+    marketing:["Marketing","Leads and campaigns."],
+    documents:["Documents","Your business knowledge."],
+    actions:["AI Actions","Recommendations under your control."],
+    analytics:["Analytics","Patterns and performance."]
+  };
+  function go(page, button) {
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    const target=$(page); if(target) target.classList.add("active");
+    document.querySelectorAll(".nav button[data-page]").forEach(b=>b.classList.remove("active"));
+    if(button) button.classList.add("active");
+    if(names[page]){$("title").textContent=names[page][0];$("sub").textContent=names[page][1];}
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // ---------- Local NEXA intelligence ----------
+  function answer(raw) {
+    const q=String(raw||"").trim().toLowerCase();
+    if(!q) return "Please ask me a question.";
+    if(q.includes("focus")||q.includes("today")||q.includes("attention")||q.includes("priority"))
+      return "Today: 1) follow up with the 7 high-value customers, 2) review the 3 invoices approaching their due dates, and 3) check Product A stock because demand is rising.";
+    if(q.includes("revenue")||q.includes("profit")||q.includes("money")||q.includes("financial"))
+      return "Current demo snapshot: revenue ₹12.8L, expenses ₹8.8L, profit ₹4.0L and receivables ₹2.4L.";
+    if(q.includes("customer")||q.includes("client"))
+      return "NEXA is tracking 1,284 customers. The attention list contains 7 high-value follow-ups. Arjun Enterprises and Shree Traders are among the high-value accounts.";
+    if(q.includes("product")||q.includes("stock")||q.includes("inventory")||q.includes("restock"))
+      return "Product A has rising demand and is flagged for a restock review. Product B has healthy stock; Product C needs a demand review.";
+    if(q.includes("sales")||q.includes("order")||q.includes("pipeline"))
+      return "Sales snapshot: ₹12.8L sales, 486 orders, ₹18.4L pipeline and 12.6% conversion.";
+    if(q.includes("invoice")||q.includes("due"))
+      return "There are 3 invoices needing attention. The most urgent demo invoice is INV-1042, due in 2 days for ₹84,000.";
+    if(q.includes("team")||q.includes("employee")||q.includes("staff"))
+      return "The Team area is ready for users and roles. In this prototype, invitations are simulated locally.";
+    if(q.includes("marketing")||q.includes("lead")||q.includes("campaign"))
+      return "Marketing snapshot: 32 leads, 0 campaigns and a 12.6% conversion figure in the demo data.";
+    if(q.includes("hello")||q.includes("hi")||q.includes("hey"))
+      return "Hello! I'm NEXA. Ask me what to focus on, revenue, customers, sales, invoices, products, team or marketing.";
+    return "I can help with focus, customers, sales, money, invoices, products, team and marketing. Try: “What should I focus on today?”";
+  }
+  function ask(inputId, outputId) {
+    const input=$(inputId), out=$(outputId);
+    const q=input.value.trim();
+    out.classList.add("loading"); out.textContent="NEXA is thinking…";
+    setTimeout(()=>{out.classList.remove("loading");out.textContent=answer(q)},220);
+  }
+
+  // ---------- Floating chat ----------
+  function addBubble(text, who) {
+    const div=document.createElement("div");
+    div.className="bubble "+who; div.textContent=text;
+    $("chatBody").appendChild(div); $("chatBody").scrollTop=$("chatBody").scrollHeight;
+  }
+  function sendChat() {
+    const input=$("chatInput"), q=input.value.trim(); if(!q) return;
+    addBubble(q,"user"); input.value="";
+    setTimeout(()=>addBubble(answer(q),"nexa"),220);
+  }
+
+  // ---------- Customers ----------
+  function renderCustomers(filter="") {
+    const f=filter.toLowerCase();
+    const rows=state.customers.filter(c=>c.name.toLowerCase().includes(f));
+    $("customerRows").innerHTML=rows.length ? rows.map(c=>`<div class="row"><span><strong>${c.name}</strong><br><small class="muted">${c.status}</small></span><span class="badge">${c.value}</span></div>`).join("") : '<div class="empty">No customers found.</div>';
+  }
+
+  // ---------- Documents ----------
+  function renderDocs() {
+    const docs=safeJSON("nexaDocs",[]);
+    $("docList").innerHTML=docs.length ? docs.map((d,i)=>`<div class="row"><span>${d.name}<br><small class="muted">${d.size}</small></span><button class="secondary doc-remove" data-i="${i}" type="button">Remove</button></div>`).join("") : '<div class="empty">No documents uploaded yet.</div>';
+  }
+  function handleFiles(files) {
+    const docs=safeJSON("nexaDocs",[]);
+    [...files].forEach(f=>docs.push({name:f.name,size:(f.size/1024).toFixed(1)+" KB"}));
+    setJSON("nexaDocs",docs); renderDocs(); toast(`${files.length} document${files.length===1?"":"s"} added`);
+  }
+
+  // ---------- Modal actions ----------
+  function openModal(title, body) {
+    $("modalTitle").textContent=title; $("modalBody").innerHTML=body; $("modalWrap").classList.remove("hidden");
+  }
+  function action(type) {
+    const data={
+      invite:["Invite team member",'<div class="field"><label>Email</label><input id="inviteEmail" type="email" placeholder="team@business.com"></div><button class="primary" id="sendInvite" type="button">Send invitation</button>'],
+      followup:["Customer follow-ups",'<p>7 high-value customers are flagged for follow-up.</p><button class="primary" id="approveFollowup" type="button">Mark review complete</button>'],
+      invoice:["Invoice review",'<p>3 invoices are approaching their due dates.</p><button class="primary" id="approveInvoice" type="button">Mark review complete</button>'],
+      restock:["Product A restock",'<p>Product A demand is rising. This prototype does not place a purchase order automatically.</p><button class="primary" id="approveRestock" type="button">Acknowledge recommendation</button>']
+    };
+    openModal(data[type][0],data[type][1]);
+    const map={sendInvite:"Invitation prepared",approveFollowup:"Follow-up review recorded",approveInvoice:"Invoice review recorded",approveRestock:"Restock recommendation acknowledged"};
+    Object.keys(map).forEach(id=>{const el=$(id);if(el)el.onclick=()=>{$("modalWrap").classList.add("hidden");toast(map[id]);}});
+  }
+
+  // ---------- Events ----------
+  $("signupViewBtn").onclick=showSignup;
+  $("loginViewBtn").onclick=showLogin;
+  $("createBtn").onclick=createAccount;
+  $("loginBtn").onclick=login;
+  $("logoutBtn").onclick=logout;
+
+  [$("le"),$("lp")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")login()}));
+  [$("sn"),$("sb"),$("se"),$("sp")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")createAccount()}));
+
+  document.querySelectorAll(".nav button[data-page]").forEach(btn=>btn.addEventListener("click",()=>go(btn.dataset.page,btn)));
+  $("homeAskBtn").onclick=()=>ask("hq","hr");
+  $("brainAskBtn").onclick=()=>ask("bq","br");
+  $("hq").addEventListener("keydown",e=>{if(e.key==="Enter")ask("hq","hr")});
+  $("bq").addEventListener("keydown",e=>{if(e.key==="Enter")ask("bq","br")});
+  document.querySelectorAll(".quick").forEach(btn=>btn.onclick=()=>{$("bq").value=btn.dataset.q;ask("bq","br")});
+
+  $("fab").onclick=()=>{$("chat").classList.toggle("hidden");if(!$("chat").classList.contains("hidden"))$("chatInput").focus()};
+  $("chatClose").onclick=()=>$("chat").classList.add("hidden");
+  $("chatSend").onclick=sendChat;
+  $("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+
+  $("customerSearch").addEventListener("input",e=>renderCustomers(e.target.value));
+  $("uploadBtn").onclick=()=> $("docFile").click();
+  $("docFile").addEventListener("change",e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value=""});
+  $("docList").addEventListener("click",e=>{
+    const b=e.target.closest(".doc-remove"); if(!b)return;
+    const docs=safeJSON("nexaDocs",[]); docs.splice(Number(b.dataset.i),1); setJSON("nexaDocs",docs); renderDocs(); toast("Document removed");
+  });
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("[data-action]"); if(b)action(b.dataset.action);
+  });
+  $("modalClose").onclick=()=>$("modalWrap").classList.add("hidden");
+  $("modalWrap").addEventListener("click",e=>{if(e.target===$("modalWrap"))$("modalWrap").classList.add("hidden")});
+
+  // ---------- Boot ----------
+  if (safeJSON("nexaSession",false) && safeJSON("nexaUser")) openApp();
+})();
+</script>
+</body>
+</html>
